@@ -100,7 +100,7 @@ export default function DashboardContent() {
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="font-[family-name:var(--font-geist-mono)]">
             {users.map((user) => (
               <TableRow key={user._id}>
                 <TableCell>{user.username}</TableCell>
