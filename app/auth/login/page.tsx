@@ -36,9 +36,12 @@ export default function LoginPage() {
       const { token, role, name: userName } = await response.json();
       console.log("Login successful:", { token, role, userName }); // Debugging
 
-      // Store token and name in localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("name", userName);
+      // Store token in a cookie
+      document.cookie = `token=${token}; path=/; max-age=3600;`; // 1 hour expiry
+      console.log("Cookie set:", document.cookie); // Debugging
+
+      localStorage.setItem("name", userName); // Store name in localStorage
+      localStorage.setItem("token", token); // Store name in localStorage
 
       // Redirect based on role
       if (role === "ROLE_ADMIN") {
@@ -46,9 +49,9 @@ export default function LoginPage() {
       } else {
         router.push("/welcome");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login error:", err); // Debugging
-      setError(err.message || "Invalid credentials");
+      setError("Invalid credentials");
     }
   };
 
