@@ -6,16 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import Link from "next/link";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleLogin = async () => {
     try {
+      console.log("Attempting login with:", { name, password }); // Debugging
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -24,12 +25,20 @@ export default function LoginPage() {
         body: JSON.stringify({ name, password }),
       });
 
+      console.log("Login response:", response); // Debugging
+
       if (!response.ok) {
-        throw new Error("Login failed");
+        const errorData = await response.json();
+        console.error("Login failed:", errorData); // Debugging
+        throw new Error(errorData.error || "Login failed");
       }
 
-      const { token, role } = await response.json();
+      const { token, role, name: userName } = await response.json();
+      console.log("Login successful:", { token, role, userName }); // Debugging
+
+      // Store token and name in localStorage
       localStorage.setItem("token", token);
+      localStorage.setItem("name", userName);
 
       // Redirect based on role
       if (role === "ROLE_ADMIN") {
@@ -37,8 +46,9 @@ export default function LoginPage() {
       } else {
         router.push("/welcome");
       }
-    } catch (err) {
-      setError("Invalid credentials");
+    } catch (err: any) {
+      console.error("Login error:", err); // Debugging
+      setError(err.message || "Invalid credentials");
     }
   };
 
@@ -64,17 +74,17 @@ export default function LoginPage() {
         >
           <div className="mb-4">
             <label
-              htmlFor="username"
+              htmlFor="name"
               className="block text-gray-700 mb-2"
             >
-              Username
+              Name
             </label>
             <Input
-              id="username"
+              id="name"
               type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -94,20 +104,11 @@ export default function LoginPage() {
           </div>
           <Button
             type="submit"
-            className="w-full mb-4"
+            className="w-full"
           >
             Login
           </Button>
         </form>
-        <p className="text-center text-gray-600">
-          Don't have an account?{" "}
-          <Link
-            href="/auth/register"
-            className="text-blue-500 hover:underline"
-          >
-            Register here
-          </Link>
-        </p>
       </div>
     </div>
   );

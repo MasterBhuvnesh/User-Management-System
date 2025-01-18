@@ -20,6 +20,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("name");
     router.push("/auth/login");
   };
 

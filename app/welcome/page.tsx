@@ -13,9 +13,13 @@ export default function WelcomePage() {
     }
   }, [router]);
 
+  const userName = localStorage.getItem("name");
+
   return (
     <div className="min-h-screen bg-gray-300 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-white">Welcome User/Owner!</h1>
+      <h1 className="text-4xl font-bold text-white">
+        Welcome, {userName || "User"}!
+      </h1>
     </div>
   );
 }

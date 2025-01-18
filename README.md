@@ -160,3 +160,7 @@ This guide provides instructions for setting up the API, configuring the environ
    - Login: `http://localhost:3000/auth/login`
    - Register: `http://localhost:3000/auth/register`
    - Dashboard: `http://localhost:3000/`
+
+---
+
+## 8:20 - userjwt

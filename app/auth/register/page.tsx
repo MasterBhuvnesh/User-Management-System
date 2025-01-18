@@ -9,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 
 export default function RegisterPage() {
-  const [username, setUsername] = useState("");
+  const [name, setname] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function RegisterPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ name, password }),
       });
 
       if (!response.ok) {
@@ -56,17 +56,17 @@ export default function RegisterPage() {
         >
           <div className="mb-4">
             <label
-              htmlFor="username"
+              htmlFor="name"
               className="block text-gray-700 mb-2"
             >
-              Username
+              name
             </label>
             <Input
-              id="username"
+              id="name"
               type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setname(e.target.value)}
             />
           </div>
           <div className="mb-4">
