@@ -88,8 +88,8 @@ export default function DashboardContent() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="font-mono font-extrabold text-2xl justify-center self-center">
-          Customer Management Dashboard
+        <CardTitle className=" font-[family-name:var(--font-geist-mono)] text-2xl justify-center self-center">
+          Dashboard
         </CardTitle>
       </CardHeader>
       <CardContent>

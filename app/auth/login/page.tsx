@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [name, setName] = useState("");
@@ -15,8 +16,6 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      console.log("Attempting login with:", { name, password }); // Debugging
-
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -24,24 +23,16 @@ export default function LoginPage() {
         },
         body: JSON.stringify({ name, password }),
       });
-
-      console.log("Login response:", response); // Debugging
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Login failed:", errorData); // Debugging
         throw new Error(errorData.error || "Login failed");
       }
 
       const { token, role, name: userName } = await response.json();
-      console.log("Login successful:", { token, role, userName }); // Debugging
+      document.cookie = `token=${token}; path=/; max-age=3600;`;
 
-      // Store token in a cookie
-      document.cookie = `token=${token}; path=/; max-age=3600;`; // 1 hour expiry
-      console.log("Cookie set:", document.cookie); // Debugging
-
-      localStorage.setItem("name", userName); // Store name in localStorage
-      localStorage.setItem("token", token); // Store name in localStorage
+      localStorage.setItem("name", userName);
+      localStorage.setItem("token", token);
 
       // Redirect based on role
       if (role === "ROLE_ADMIN") {
@@ -50,7 +41,6 @@ export default function LoginPage() {
         router.push("/welcome");
       }
     } catch (err) {
-      console.error("Login error:", err); // Debugging
       setError("Invalid credentials");
     }
   };
@@ -112,6 +102,15 @@ export default function LoginPage() {
             Login
           </Button>
         </form>
+        <p className="text-center text-gray-600 p-6">
+          don't have an account?{" "}
+          <Link
+            href="/auth/register"
+            className="text-blue-500 hover:underline"
+          >
+            register here
+          </Link>
+        </p>
       </div>
     </div>
   );

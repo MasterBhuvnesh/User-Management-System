@@ -1,166 +1,259 @@
-# API Setup Instructions
-
-This guide provides instructions for setting up the API, configuring the environment variables, and integrating the authentication system.
+Certainly! Below is an updated `README.md` file that reflects the current implementation, including the use of the `jose` library for JWT handling, the `Customers` collection in MongoDB, and the role-based authentication system.
 
 ---
 
-## File: `api/users/route.ts`
+# User Management System
 
-1. **Line 8 and 21**:  
-   Replace `<Database_name>` with the name of your MongoDB database.  
-   Example:
-
-   ```typescript
-   const db = client.db("your_database_name");
-   ```
-
-2. **Line 9 and 23**:  
-   Replace `<Collection_name>` with the name of your MongoDB collection.  
-   Example:
-
-   ```typescript
-   const users = await db.collection("your_collection_name");
-   ```
-
-3. **Document Structure**:  
-   Ensure that the documents in your collection follow this structure:
-   ```json
-   {
-     "_id": { "$oid": "123456789abcdef" },
-     "username": "user",
-     "owner": true
-   }
-   ```
+This project is a **User Management System** built with **Next.js**, **MongoDB**, and **JWT-based authentication**. It allows users to register, log in, and manage their roles (`ROLE_USER`, `ROLE_OWNER`, `ROLE_ADMIN`). Admins can access a dashboard to manage user roles, while regular users and owners are redirected to a welcome page.
 
 ---
 
-## File: `api/auth/login/route.ts` and `api/auth/register/route.ts`
+## Features
 
-1. **Database and Collection**:  
-   Replace `<Database_name>` with the name of your MongoDB database.  
-   Example:
-
-   ```typescript
-   const db = client.db("your_database_name");
-   ```
-
-2. **Collection Name**:  
-   The authentication system uses a collection named `AuthUsers`. Ensure this collection exists in your database.  
-   Example:
-
-   ```typescript
-   const user = await db.collection("AuthUsers").findOne({ username });
-   ```
-
-3. **JWT Secret**:  
-   Ensure you have set the `JWT_SECRET` environment variable in `.env.local`.  
-   Example:
-   ```
-   JWT_SECRET=your_jwt_secret_key
-   ```
+- **User Registration**: Users can register with a `name` and `password`. The default role is `ROLE_USER`.
+- **User Login**: Users can log in with their credentials. A JWT token is generated and stored in a cookie.
+- **Role-Based Access Control**:
+  - `ROLE_ADMIN`: Can access the dashboard and manage user roles.
+  - `ROLE_USER` and `ROLE_OWNER`: Redirected to a welcome page.
+- **Dashboard**: Admins can toggle user roles between `ROLE_USER` and `ROLE_OWNER`.
+- **Middleware**: Protects routes based on the user's role and JWT token.
 
 ---
 
-## File: `.env.local`
+## Technologies Used
 
-1. **MongoDB Connection String**:  
-   Replace `<database_name>` with the name of your MongoDB database.  
-   Example:
-
-   ```
-   MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/your_database_name
-   ```
-
-2. **JWT Secret**:  
-   Set a secure secret key for JWT token generation.  
-   Example:
-   ```
-   JWT_SECRET=your_jwt_secret_key
-   ```
+- **Frontend**: Next.js, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB
+- **Authentication**: JWT (using the `jose` library)
+- **Middleware**: Next.js Middleware
 
 ---
 
-## Authentication System
+## Setup Instructions
 
-### Login and Register Pages
+### 1. Clone the Repository
 
-1. **Login Page**:
+```bash
+git clone https://github.com/masterbhuvnesh/user-management-system.git
+cd user-management-system
+```
 
-   - Path: `/auth/login`
-   - Users can log in using their credentials.
-   - A "Don't have an account?" link redirects users to the register page.
+### 2. Install Dependencies
 
-2. **Register Page**:
+```bash
+npm install
+```
 
-   - Path: `/auth/register`
-   - Users can create a new account.
-   - A "Have an account?" link redirects users to the login page.
+### 3. Set Up Environment Variables
 
-3. **Logout**:
-   - A logout button is available on the dashboard.
-   - Clicking the button clears the JWT token from `localStorage` and redirects the user to the login page.
+Create a `.env.local` file in the root directory and add the following variables:
+
+```plaintext
+MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/your_database_name
+JWT_SECRET=your_jwt_secret_key
+```
+
+- `MONGODB_URI`: Your MongoDB connection string.
+- `JWT_SECRET`: A secure secret key for JWT token generation.
+
+### 4. Run the Application
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+---
+
+## API Endpoints
+
+### 1. **Register User**
+
+- **URL**: `/api/auth/register`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "name": "username",
+    "password": "password"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "User registered successfully"
+  }
+  ```
+
+### 2. **Login User**
+
+- **URL**: `/api/auth/login`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "name": "username",
+    "password": "password"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "token": "jwt_token",
+    "role": "ROLE_USER",
+    "name": "username"
+  }
+  ```
+
+### 3. **Fetch Customers (Admin Only)**
+
+- **URL**: `/api/customers`
+- **Method**: `GET`
+- **Response**:
+  ```json
+  [
+    {
+      "_id": "user_id",
+      "name": "username",
+      "role": "ROLE_USER"
+    }
+  ]
+  ```
+
+### 4. **Update User Role (Admin Only)**
+
+- **URL**: `/api/customers`
+- **Method**: `PUT`
+- **Request Body**:
+  ```json
+  {
+    "id": "user_id",
+    "role": "ROLE_OWNER"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Role updated successfully"
+  }
+  ```
+
+---
+
+## Folder Structure
+
+```
+user-management-system/
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── login/
+│   │   │   │   └── route.ts
+│   │   │   └── register/
+│   │   │       └── route.ts
+│   │   └── customers/
+│   │       └── route.ts
+│   ├── auth/
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── register/
+│   │       └── page.tsx
+│   ├── dashboard/
+│   │   └── page.tsx
+│   ├── welcome/
+│   │   └── page.tsx
+│   └── layout.tsx
+├── components/
+│   └── DashboardContent.tsx
+├── lib/
+│   └── mongodb.ts
+├── middleware.ts
+├── README.md
+├── package.json
+└── .env.local
+```
 
 ---
 
 ## Middleware
 
-1. **Middleware File**:
+The middleware (`middleware.ts`) protects routes based on the user's role and JWT token. It performs the following tasks:
 
-   - Path: `middleware.ts`
-   - Protects the `/` route by verifying the JWT token.
-   - If no token is found or the token is invalid, the user is redirected to the login page.
+1. **Token Verification**:
 
-2. **Middleware Configuration**:  
-   Ensure the middleware is applied to the `/` route:
-   ```typescript
-   export const config = {
-     matcher: "/:path*",
-   };
-   ```
+   - Verifies the JWT token using the `jose` library.
+   - Redirects to the login page if the token is invalid or missing.
+
+2. **Role-Based Redirection**:
+   - Admins (`ROLE_ADMIN`) can access the dashboard.
+   - Regular users (`ROLE_USER`) and owners (`ROLE_OWNER`) are redirected to the welcome page.
 
 ---
 
-## Notes
+## How It Works
 
-1. **Environment Variables**:
+1. **Registration**:
 
-   - Ensure the `.env.local` file is not committed to version control (e.g., add it to `.gitignore`).
-   - Replace placeholders with actual values specific to your setup.
+   - Users register with a `name` and `password`. The password is hashed using `bcrypt` and stored in the `Customers` collection.
 
-2. **Database Collections**:
+2. **Login**:
 
-   - The `Users` collection is used for user management.
-   - The `AuthUsers` collection is used for authentication.
+   - Users log in with their credentials. A JWT token is generated and stored in a cookie.
 
-3. **JWT Token Expiry**:
+3. **Dashboard**:
 
-   - Tokens are set to expire in 1 hour. You can adjust this in the `jwt.sign` function in `api/auth/login/route.ts`.
+   - Admins can access the dashboard to manage user roles.
+   - Regular users and owners are redirected to the welcome page.
 
-4. **Security**:
-   - Use strong passwords and secure JWT secrets.
-   - Never expose sensitive information (e.g., passwords, JWT secrets) in client-side code.
+4. **Middleware**:
+   - Protects routes based on the user's role and JWT token.
 
 ---
 
-## Running the Application
+## Testing
 
-1. Install dependencies:
+1. **Register a User**:
 
-   ```bash
-   npm install
-   ```
+   - Use the registration page to create a new user.
 
-2. Start the development server:
+2. **Login**:
 
-   ```bash
-   npm run dev
-   ```
+   - Log in with the registered credentials.
 
-3. Access the application:
-   - Login: `http://localhost:3000/auth/login`
-   - Register: `http://localhost:3000/auth/register`
-   - Dashboard: `http://localhost:3000/`
+3. **Access Protected Routes**:
+
+   - Admins can access the dashboard.
+   - Regular users and owners are redirected to the welcome page.
+
+4. **Logout**:
+   - Click the logout button to clear the token and redirect to the login page.
 
 ---
 
-## 8:20 - userjwt
+## Troubleshooting
+
+### 1. **Token Not Found**
+
+- Ensure the token is being set in the cookies after login.
+- Check the browser’s **Application tab** to verify the `token` cookie.
+
+### 2. **Middleware Not Working**
+
+- Ensure the middleware is correctly reading the token from the cookies.
+- Check the server logs for debugging messages.
+
+### 3. **Environment Variables**
+
+- Ensure `MONGODB_URI` and `JWT_SECRET` are set in the `.env.local` file.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
