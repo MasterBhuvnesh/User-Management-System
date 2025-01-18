@@ -4,12 +4,12 @@ import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    const { name, password } = await request.json();
     const client = await clientPromise;
     const db = client.db("User_Managment");
 
     // Check if user already exists
-    const existingUser = await db.collection("AuthUsers").findOne({ username });
+    const existingUser = await db.collection("Customers").findOne({ name });
     if (existingUser) {
       return NextResponse.json(
         { error: "User already exists" },
@@ -20,10 +20,11 @@ export async function POST(request: Request) {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user
-    await db.collection("AuthUsers").insertOne({
-      username,
+    // Insert new user with default role
+    await db.collection("Customers").insertOne({
+      name,
       password: hashedPassword,
+      role: "ROLE_USER", // Default role
     });
 
     return NextResponse.json(

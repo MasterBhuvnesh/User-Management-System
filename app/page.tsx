@@ -1,38 +1,66 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardContent from "@/components/DashboardContent";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
-export default function Dashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export default function HomePage() {
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
+      // No token found, redirect to login
       router.push("/auth/login");
-    } else {
-      setIsAuthenticated(true);
+      return;
     }
+
+    // Verify the token and fetch user role
+    const verifyToken = async () => {
+      try {
+        const response = await fetch("/api/auth/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Token verification failed");
+        }
+
+        const { role } = await response.json();
+
+        // Redirect based on role
+        if (role === "ROLE_ADMIN") {
+          router.push("/dashboard");
+        } else if (role === "ROLE_USER" || role === "ROLE_OWNER") {
+          router.push("/welcome");
+        } else {
+          throw new Error("Invalid role");
+        }
+      } catch (error) {
+        console.error(error);
+        localStorage.removeItem("token"); // Clear invalid token
+        router.push("/auth/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyToken();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // Clear the token
-    router.push("/auth/login"); // Redirect to login page
-  };
-
-  if (!isAuthenticated) {
-    return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-300 text-white p-8">
-      <div className="flex justify-end mb-4">
-        <Button onClick={handleLogout}>Logout</Button>
-      </div>
-      <DashboardContent />
-    </div>
-  );
+  return null; // Redirection will happen, so no need to render anything
 }

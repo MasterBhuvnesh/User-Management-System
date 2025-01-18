@@ -21,16 +21,22 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ name, password }),
       });
 
       if (!response.ok) {
         throw new Error("Login failed");
       }
 
-      const { token } = await response.json();
-      localStorage.setItem("token", token); // Store token in localStorage
-      router.push("/"); // Redirect to dashboard
+      const { token, role } = await response.json();
+      localStorage.setItem("token", token);
+
+      // Redirect based on role
+      if (role === "ROLE_ADMIN") {
+        router.push("/dashboard");
+      } else {
+        router.push("/welcome");
+      }
     } catch (err) {
       setError("Invalid credentials");
     }

@@ -13,55 +13,61 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface User {
+interface Customer {
   _id: string;
-  username: string;
-  owner: boolean;
+  name: string;
+  role: string; // "ROLE_USER", "ROLE_OWNER", or "ROLE_ADMIN"
 }
 
 export default function DashboardContent() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchUsers();
+    fetchCustomers();
   }, []);
 
-  const fetchUsers = async () => {
+  // Fetch customers from the API
+  const fetchCustomers = async () => {
     try {
-      const response = await fetch("/api/users");
+      const response = await fetch("/api/customers");
       if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        throw new Error("Failed to fetch customers");
       }
       const data = await response.json();
-      setUsers(data);
+      setCustomers(data);
     } catch (err) {
-      setError("Failed to fetch users");
+      setError("Failed to fetch customers");
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleOwnerStatus = async (id: string, currentStatus: boolean) => {
+  // Toggle role between ROLE_USER and ROLE_OWNER
+  const toggleRole = async (id: string, currentRole: string) => {
+    const newRole = currentRole === "ROLE_USER" ? "ROLE_OWNER" : "ROLE_USER";
     try {
-      const response = await fetch("/api/users", {
+      const response = await fetch("/api/customers", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, owner: !currentStatus }),
+        body: JSON.stringify({ id, role: newRole }),
       });
+
       if (!response.ok) {
-        throw new Error("Failed to update user");
+        throw new Error("Failed to update role");
       }
-      setUsers(
-        users.map((user) =>
-          user._id === id ? { ...user, owner: !currentStatus } : user
+
+      // Update local state
+      setCustomers(
+        customers.map((customer) =>
+          customer._id === id ? { ...customer, role: newRole } : customer
         )
       );
     } catch (err) {
-      setError("Failed to update user");
+      setError("Failed to update role");
     }
   };
 
@@ -71,6 +77,7 @@ export default function DashboardContent() {
         Loading...
       </div>
     );
+
   if (error)
     return (
       <div className="flex justify-center items-center h-screen text-red-500">
@@ -79,10 +86,10 @@ export default function DashboardContent() {
     );
 
   return (
-    <Card className="w-full ">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="font-mono font-extrabold text-2xl justify-center self-center">
-          User Management Dashboard
+          Customer Management Dashboard
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -90,27 +97,33 @@ export default function DashboardContent() {
           <TableHeader>
             <TableRow>
               <TableHead className="font-[family-name:var(--font-geist-mono)]">
-                Username
+                Name
               </TableHead>
               <TableHead className="font-[family-name:var(--font-geist-mono)]">
-                Owner Status
+                Role
               </TableHead>
               <TableHead className="font-[family-name:var(--font-geist-mono)]">
-                Toggle Owner
+                Toggle Role
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="font-[family-name:var(--font-geist-mono)]">
-            {users.map((user) => (
-              <TableRow key={user._id}>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.owner && <Badge>Owner</Badge>}</TableCell>
+            {customers.map((customer) => (
+              <TableRow key={customer._id}>
+                <TableCell>{customer.name}</TableCell>
+                <TableCell>
+                  {customer.role === "ROLE_OWNER" && <Badge>Owner</Badge>}
+                  {customer.role === "ROLE_USER" && (
+                    <Badge variant="outline">User</Badge>
+                  )}
+                </TableCell>
                 <TableCell>
                   <Switch
-                    checked={user.owner}
+                    checked={customer.role === "ROLE_OWNER"}
                     onCheckedChange={() =>
-                      toggleOwnerStatus(user._id, user.owner)
+                      toggleRole(customer._id, customer.role)
                     }
+                    disabled={customer.role === "ROLE_ADMIN"} // Disable switch for admins
                   />
                 </TableCell>
               </TableRow>

@@ -5,12 +5,12 @@ import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    const { name, password } = await request.json();
     const client = await clientPromise;
     const db = client.db("User_Managment");
 
     // Find the user
-    const user = await db.collection("AuthUsers").findOne({ username });
+    const user = await db.collection("Customers").findOne({ name });
     if (!user) {
       return NextResponse.json(
         { error: "Invalid credentials" },
@@ -28,13 +28,15 @@ export async function POST(request: Request) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "1h",
+      }
+    );
 
-    console.log("Login successful, token generated:", token); // Debugging
-
-    return NextResponse.json({ token }, { status: 200 });
+    return NextResponse.json({ token, role: user.role }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
