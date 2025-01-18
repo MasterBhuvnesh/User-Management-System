@@ -1,7 +1,3 @@
-Here’s the updated `README.md` file with additional instructions for the new authentication system, including JWT setup, login/register functionality, and environment variables.
-
----
-
 # API Setup Instructions
 
 This guide provides instructions for setting up the API, configuring the environment variables, and integrating the authentication system.
@@ -164,7 +160,3 @@ This guide provides instructions for setting up the API, configuring the environ
    - Login: `http://localhost:3000/auth/login`
    - Register: `http://localhost:3000/auth/register`
    - Dashboard: `http://localhost:3000/`
-
----
-
-This updated `README.md` provides comprehensive instructions for setting up the API, configuring environment variables, and integrating the authentication system. Let me know if you need further assistance! 😊
