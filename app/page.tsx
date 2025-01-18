@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DashboardContent from "@/components/DashboardContent";
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,15 +11,17 @@ export default function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Dashboard - Token:", token); // Debugging
-
     if (!token) {
-      console.log("No token found, redirecting to login"); // Debugging
       router.push("/auth/login");
     } else {
       setIsAuthenticated(true);
     }
   }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Clear the token
+    router.push("/auth/login"); // Redirect to login page
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -26,6 +29,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-300 text-white p-8">
+      <div className="flex justify-end mb-4">
+        <Button onClick={handleLogout}>Logout</Button>
+      </div>
       <DashboardContent />
     </div>
   );

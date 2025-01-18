@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -87,11 +88,20 @@ export default function LoginPage() {
           </div>
           <Button
             type="submit"
-            className="w-full"
+            className="w-full mb-4"
           >
             Login
           </Button>
         </form>
+        <p className="text-center text-gray-600">
+          Don't have an account?{" "}
+          <Link
+            href="/auth/register"
+            className="text-blue-500 hover:underline"
+          >
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );
